@@ -1,11 +1,15 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { serveStatic } from 'hono/cloudflare-workers'
 import type { CloudflareBindings } from './types'
 
 const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 // Enable CORS for all API routes
 app.use('/api/*', cors())
+
+// Serve static files from public directory
+app.use('/static/*', serveStatic({ root: './public' }))
 
 // Serve dashboard route  
 app.get('/dashboard', (c) => {
@@ -715,9 +719,18 @@ app.get('/', async (c) => {
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <a href="/dashboard-enhanced.html" class="bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl p-6 text-center transition border-2 border-yellow-400">
+                    <div class="flex items-center justify-center mb-2">
+                        <i class="fas fa-chart-line text-4xl"></i>
+                        <span class="ml-2 bg-yellow-400 text-purple-900 text-xs font-bold px-2 py-1 rounded">NEW!</span>
+                    </div>
+                    <h2 class="text-xl font-bold">Enhanced Dashboard</h2>
+                    <p class="text-sm opacity-80 mt-2">📊 Real-time charts • 🤖 GANI Chat • 📱 Mobile-ready</p>
+                </a>
+                
                 <a href="/dashboard" class="bg-purple-600 hover:bg-purple-700 rounded-xl p-6 text-center transition">
-                    <i class="fas fa-chart-line text-4xl mb-3"></i>
-                    <h2 class="text-xl font-bold">Dashboard</h2>
+                    <i class="fas fa-tachometer-alt text-4xl mb-3"></i>
+                    <h2 class="text-xl font-bold">Basic Dashboard</h2>
                     <p class="text-sm opacity-80 mt-2">Production metrics & analytics</p>
                 </a>
                 
@@ -740,6 +753,31 @@ app.get('/', async (c) => {
                 </a>
             </div>
             
+            <div class="bg-black bg-opacity-50 backdrop-blur-lg rounded-xl p-6 border border-purple-500 mb-6">
+                <h3 class="text-lg font-bold mb-3 flex items-center">
+                    <i class="fas fa-star mr-2 text-yellow-400"></i>
+                    🔥 NEW in v2.0: Enhanced Features
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div class="bg-purple-900 bg-opacity-30 p-3 rounded">
+                        <p class="font-bold text-purple-300">📊 Interactive Charts</p>
+                        <p class="text-gray-400 text-xs">Chart.js visualizations for trends & analytics</p>
+                    </div>
+                    <div class="bg-purple-900 bg-opacity-30 p-3 rounded">
+                        <p class="font-bold text-green-300">⚡ Real-time Updates</p>
+                        <p class="text-gray-400 text-xs">Auto-refresh every 30 seconds</p>
+                    </div>
+                    <div class="bg-purple-900 bg-opacity-30 p-3 rounded">
+                        <p class="font-bold text-blue-300">🤖 GANI Chat Interface</p>
+                        <p class="text-gray-400 text-xs">Ask GANI anything about your workshop</p>
+                    </div>
+                    <div class="bg-purple-900 bg-opacity-30 p-3 rounded">
+                        <p class="font-bold text-orange-300">📱 Mobile-Responsive</p>
+                        <p class="text-gray-400 text-xs">Perfect on phones, tablets & desktops</p>
+                    </div>
+                </div>
+            </div>
+            
             <div class="bg-black bg-opacity-50 backdrop-blur-lg rounded-xl p-6 border border-purple-500">
                 <h3 class="text-lg font-bold mb-3 flex items-center">
                     <i class="fas fa-info-circle mr-2 text-purple-400"></i>
@@ -749,13 +787,14 @@ app.get('/', async (c) => {
                     <p>✅ <strong>Workshop Module:</strong> Active</p>
                     <p>✅ <strong>Database:</strong> Connected (D1)</p>
                     <p>✅ <strong>API Endpoints:</strong> ${(await c.env.DB.prepare('SELECT 1').first()) ? 'Ready' : 'Initializing...'}</p>
-                    <p>🤖 <strong>GANI Integration:</strong> Ready</p>
+                    <p>🤖 <strong>GANI AI:</strong> Workers AI (Llama 3) Ready</p>
                 </div>
             </div>
             
             <div class="mt-8 text-center text-sm text-gray-400">
-                <p>Stark Dynasty v1.0.0 | Powered by <span class="text-purple-400 font-bold">GANI Hypha Engine</span></p>
+                <p>Stark Dynasty v2.0.0 | Powered by <span class="text-purple-400 font-bold">GANI AI + Workers AI</span></p>
                 <p class="mt-2">🏭 Manufacturing Excellence | 💰 57% Profit Margin | ✅ 95%+ Quality</p>
+                <p class="mt-2 text-xs">✨ Enhanced with Chart.js • Real-time Updates • Mobile-Ready • AI Chat</p>
             </div>
         </div>
     </body>
