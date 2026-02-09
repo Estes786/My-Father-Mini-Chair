@@ -1,0 +1,41 @@
+{
+  "name": "stark-dynasty-workshop",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Workshop Production Management System for Stark Dynasty - Managing Bapak's Mini Chair Manufacturing",
+  "scripts": {
+    "dev": "vite",
+    "dev:sandbox": "wrangler pages dev dist --ip 0.0.0.0 --port 3000",
+    "dev:d1": "wrangler pages dev dist --d1=workshop-db --local --ip 0.0.0.0 --port 3000",
+    "build": "vite build",
+    "preview": "wrangler pages dev dist",
+    "deploy": "npm run build && wrangler pages deploy dist",
+    "deploy:prod": "npm run build && wrangler pages deploy dist --project-name my-father-mini-chair",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "clean-port": "fuser -k 3000/tcp 2>/dev/null || true",
+    "test": "curl http://localhost:3000",
+    "db:create": "wrangler d1 create workshop-db",
+    "db:migrate:local": "wrangler d1 migrations apply workshop-db --local",
+    "db:migrate:prod": "wrangler d1 migrations apply workshop-db",
+    "db:seed": "wrangler d1 execute workshop-db --local --file=./seed.sql",
+    "db:reset": "rm -rf .wrangler/state/v3/d1 && npm run db:migrate:local && npm run db:seed",
+    "db:console:local": "wrangler d1 execute workshop-db --local",
+    "db:console:prod": "wrangler d1 execute workshop-db",
+    "git:init": "git add . && git commit -m 'Initial commit'",
+    "git:commit": "git add . && git commit -m",
+    "git:push": "git push origin main",
+    "git:status": "git status",
+    "git:log": "git log --oneline"
+  },
+  "dependencies": {
+    "hono": "^4.11.9"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260207.0",
+    "@hono/vite-build": "^1.2.0",
+    "@hono/vite-dev-server": "^0.18.2",
+    "typescript": "^5.9.3",
+    "vite": "^6.3.5",
+    "wrangler": "^4.4.0"
+  }
+}

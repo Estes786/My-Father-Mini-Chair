@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Production Dashboard - Stark Dynasty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 min-h-screen text-white">
+    
+    <!-- Header -->
+    <header class="bg-black bg-opacity-50 backdrop-blur-lg border-b border-purple-500">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-hammer text-3xl text-purple-400"></i>
+                <div>
+                    <h1 class="text-2xl font-bold">Workshop Production Dashboard</h1>
+                    <p class="text-sm text-gray-400">Stark Dynasty Manufacturing Hub</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <p class="text-sm text-gray-400">Production Manager</p>
+                    <p class="font-bold">Bapak</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- Current Project -->
+            <div class="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <i class="fas fa-project-diagram text-3xl"></i>
+                    <span class="bg-green-500 text-xs px-2 py-1 rounded-full">IN PROGRESS</span>
+                </div>
+                <h3 class="text-3xl font-bold mb-2">PROJ-2026-003</h3>
+                <p class="text-sm opacity-80">Current Production</p>
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span>Progress</span>
+                        <span class="font-bold">62/90 chairs</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-green-400 h-2 rounded-full" style="width: 68.9%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue This Month -->
+            <div class="bg-gradient-to-br from-green-600 to-green-800 rounded-xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <i class="fas fa-money-bill-wave text-3xl"></i>
+                </div>
+                <h3 class="text-3xl font-bold mb-2">Rp 2.37 Jt</h3>
+                <p class="text-sm opacity-80">Monthly Revenue (Est.)</p>
+                <div class="mt-4 flex items-center space-x-2">
+                    <i class="fas fa-arrow-up text-green-300"></i>
+                    <span class="text-sm">+8% from last month</span>
+                </div>
+            </div>
+
+            <!-- Profit Margin -->
+            <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <i class="fas fa-chart-line text-3xl"></i>
+                </div>
+                <h3 class="text-3xl font-bold mb-2">57.2%</h3>
+                <p class="text-sm opacity-80">Profit Margin</p>
+                <div class="mt-4">
+                    <span class="text-xs bg-blue-900 px-2 py-1 rounded">🔥 EXCELLENT</span>
+                </div>
+            </div>
+
+            <!-- Quality Pass Rate -->
+            <div class="bg-gradient-to-br from-orange-600 to-orange-800 rounded-xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <i class="fas fa-check-circle text-3xl"></i>
+                </div>
+                <h3 class="text-3xl font-bold mb-2">97.3%</h3>
+                <p class="text-sm opacity-80">Quality Pass Rate</p>
+                <div class="mt-4">
+                    <span class="text-xs bg-orange-900 px-2 py-1 rounded">⭐ ABOVE TARGET</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Production Timeline -->
+            <div class="lg:col-span-2 bg-black bg-opacity-50 backdrop-blur-lg rounded-xl p-6 border border-purple-500">
+                <h2 class="text-xl font-bold mb-6 flex items-center">
+                    <i class="fas fa-calendar-alt mr-3 text-purple-400"></i>
+                    Production Timeline
+                </h2>
+                <div class="space-y-4">
+                    <!-- Project 1 -->
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <h3 class="font-bold">PROJ-2026-003</h3>
+                                <span class="text-sm text-green-400">In Progress</span>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-2">Started: 28 Jan 2026 • Target: 11 Feb 2026</p>
+                            <div class="flex items-center space-x-4 text-sm">
+                                <span><i class="fas fa-box mr-2 text-blue-400"></i>62/90 chairs</span>
+                                <span><i class="fas fa-dollar-sign mr-2 text-green-400"></i>Cost on track</span>
+                                <span><i class="fas fa-star mr-2 text-yellow-400"></i>97% quality</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 -->
+                    <div class="flex items-start space-x-4 opacity-50">
+                        <div class="w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <h3 class="font-bold">PROJ-2026-004</h3>
+                                <span class="text-sm text-gray-400">Planned</span>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-2">Start: 12 Feb 2026 • Target: 26 Feb 2026</p>
+                            <div class="flex items-center space-x-4 text-sm">
+                                <span><i class="fas fa-box mr-2 text-blue-400"></i>0/90 chairs</span>
+                                <span><i class="fas fa-clipboard-check mr-2 text-purple-400"></i>Materials ready</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 3 -->
+                    <div class="flex items-start space-x-4 opacity-30">
+                        <div class="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <h3 class="font-bold">PROJ-2026-005</h3>
+                                <span class="text-sm text-gray-500">Scheduled</span>
+                            </div>
+                            <p class="text-sm text-gray-500">Start: 27 Feb 2026</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Material Inventory -->
+            <div class="bg-black bg-opacity-50 backdrop-blur-lg rounded-xl p-6 border border-purple-500">
+                <h2 class="text-xl font-bold mb-6 flex items-center">
+                    <i class="fas fa-boxes mr-3 text-purple-400"></i>
+                    Material Status
+                </h2>
+                <div class="space-y-3">
+                    <!-- Material 1 -->
+                    <div class="border-l-4 border-green-500 pl-3">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-semibold">Kain/Cotton</span>
+                            <span class="text-green-400">✓ OK</span>
+                        </div>
+                        <p class="text-sm text-gray-400">Stock: 42 meter</p>
+                    </div>
+
+                    <!-- Material 2 -->
+                    <div class="border-l-4 border-yellow-500 pl-3">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-semibold">Wood Sheets</span>
+                            <span class="text-yellow-400">⚠ Low</span>
+                        </div>
+                        <p class="text-sm text-gray-400">Stock: 18 sheets (need reorder)</p>
+                    </div>
+
+                    <!-- Material 3 -->
+                    <div class="border-l-4 border-green-500 pl-3">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-semibold">Triplek</span>
+                            <span class="text-green-400">✓ OK</span>
+                        </div>
+                        <p class="text-sm text-gray-400">Stock: 12 sheets</p>
+                    </div>
+
+                    <!-- Material 4 -->
+                    <div class="border-l-4 border-red-500 pl-3 bg-red-900 bg-opacity-20">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-semibold">Busa/Spoon</span>
+                            <span class="text-red-400">🚨 CRITICAL</span>
+                        </div>
+                        <p class="text-sm text-gray-400">Stock: 2 lembar (order NOW!)</p>
+                    </div>
+
+                    <!-- Material 5 -->
+                    <div class="border-l-4 border-green-500 pl-3">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-semibold">Paku/Nails</span>
+                            <span class="text-green-400">✓ OK</span>
+                        </div>
+                        <p class="text-sm text-gray-400">Stock: 5 kg</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial & Quality Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            
+            <!-- Cost Breakdown -->
+            <div class="bg-black bg-opacity-50 backdrop-blur-lg rounded-xl p-6 border border-purple-500">
+                <h2 class="text-xl font-bold mb-6 flex items-center">
+                    <i class="fas fa-chart-pie mr-3 text-purple-400"></i>
+                    Cost Breakdown (Per Project)
+                </h2>
+                <div class="h-64">
+                    <canvas id="costChart"></canvas>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-gray-400">Total Cost:</span>
+                        <p class="text-xl font-bold text-red-400">Rp 886,192</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-400">Revenue:</span>
+                        <p class="text-xl font-bold text-green-400">Rp 2,070,000</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quality Trend -->
+            <div class="bg-black bg-opacity-50 backdrop-blur-lg rounded-xl p-6 border border-purple-500">
+                <h2 class="text-xl font-bold mb-6 flex items-center">
+                    <i class="fas fa-chart-line mr-3 text-purple-400"></i>
+                    Quality Trend (Last 6 Projects)
+                </h2>
+                <div class="h-64">
+                    <canvas id="qualityChart"></canvas>
+                </div>
+                <div class="mt-4 text-center">
+                    <span class="text-sm text-gray-400">Average Pass Rate:</span>
+                    <p class="text-2xl font-bold text-green-400">96.8%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GANI Alerts -->
+        <div class="bg-gradient-to-r from-purple-900 to-purple-800 rounded-xl p-6 border border-purple-500">
+            <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold mb-2 flex items-center">
+                        GANI Smart Alerts
+                        <span class="ml-2 text-xs bg-green-500 px-2 py-1 rounded-full">ACTIVE</span>
+                    </h3>
+                    <div class="space-y-2 text-sm">
+                        <p class="flex items-start">
+                            <i class="fas fa-check-circle text-green-400 mr-2 mt-1"></i>
+                            <span><strong>Boss</strong>, project PROJ-2026-003 progress excellent! On track untuk selesai tepat waktu. Quality pass rate 97% - above target! 🔥</span>
+                        </p>
+                        <p class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-yellow-400 mr-2 mt-1"></i>
+                            <span><strong>Material Alert</strong>: Wood Sheets stock low (18 sheets). Recommend ordering 50 sheets before weekend. I can create purchase order?</span>
+                        </p>
+                        <p class="flex items-start">
+                            <i class="fas fa-exclamation-circle text-red-400 mr-2 mt-1"></i>
+                            <span><strong>URGENT</strong>: Busa/Spoon critical low (2 lembar)! Need minimum 10 lembar untuk next project. Supplier Pak Budi lead time 3 days. ORDER NOW!</span>
+                        </p>
+                        <p class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-400 mr-2 mt-1"></i>
+                            <span><strong>Barber Sync</strong>: Shop inventory 28 chairs. Usage rate normal. Next delivery scheduled Friday (18 chairs from current project).</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black bg-opacity-50 backdrop-blur-lg border-t border-purple-500 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-400">
+            <p>Stark Dynasty Workshop Production System v1.0.0</p>
+            <p class="mt-2">Powered by <span class="text-purple-400 font-bold">GANI Hypha Engine</span> 🤖</p>
+        </div>
+    </footer>
+
+    <script>
+        // Cost Breakdown Pie Chart
+        const costCtx = document.getElementById('costChart').getContext('2d');
+        new Chart(costCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Kain/Cotton', 'Wood', 'Triplek', 'Paku', 'Busa', 'Other'],
+                datasets: [{
+                    data: [306000, 416000, 92000, 42000, 192, 30000],
+                    backgroundColor: [
+                        '#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444', '#6B7280'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#1F2937'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#D1D5DB',
+                            font: { size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Quality Trend Line Chart
+        const qualityCtx = document.getElementById('qualityChart').getContext('2d');
+        new Chart(qualityCtx, {
+            type: 'line',
+            data: {
+                labels: ['PROJ-001', 'PROJ-002', 'PROJ-003', 'PROJ-004', 'PROJ-005', 'PROJ-006'],
+                datasets: [{
+                    label: 'Quality Pass Rate (%)',
+                    data: [94.2, 95.8, 96.1, 97.5, 97.8, 98.1],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 90,
+                        max: 100,
+                        ticks: { color: '#D1D5DB' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#D1D5DB' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#D1D5DB' }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

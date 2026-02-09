@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "my-father-mini-chair",
+  "compatibility_date": "2026-02-09",
+  "pages_build_output_dir": "./dist",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  // D1 Database for Workshop Production
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "workshop-db",
+      "database_id": "workshop-db-local"
+    }
+  ]
+}
