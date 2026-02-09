@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Dashboard v2.0 - Stark Dynasty Workshop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .live-indicator {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        .chat-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 min-h-screen text-white">
+    
+    <!-- Header -->
+    <header class="bg-black bg-opacity-50 backdrop-blur-lg border-b border-purple-500 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-hammer text-2xl sm:text-3xl text-purple-400"></i>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold">Enhanced Dashboard v2.0</h1>
+                        <p class="text-xs sm:text-sm text-gray-400">
+                            <span class="live-indicator inline-block w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                            Live • Last update: <span id="lastUpdate">Loading...</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="refreshDashboard()" class="bg-purple-600 hover:bg-purple-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition">
+                        <i class="fas fa-sync-alt mr-1 sm:mr-2"></i>
+                        <span class="hidden sm:inline">Refresh</span>
+                    </button>
+                    <button onclick="openGANIChat()" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition font-bold">
+                        <i class="fas fa-robot mr-1 sm:mr-2"></i>
+                        <span>GANI Chat</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        
+        <!-- Quick Stats Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+            <!-- Active Projects -->
+            <div class="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-4 sm:p-6 shadow-xl slide-in">
+                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                    <i class="fas fa-project-diagram text-2xl sm:text-3xl"></i>
+                    <span id="activeBadge" class="bg-green-500 text-xs px-2 py-1 rounded-full">...</span>
+                </div>
+                <h3 id="activeCount" class="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">-</h3>
+                <p class="text-xs sm:text-sm opacity-80">Active Projects</p>
+            </div>
+
+            <!-- Monthly Revenue -->
+            <div class="bg-gradient-to-br from-green-600 to-green-800 rounded-xl p-4 sm:p-6 shadow-xl slide-in" style="animation-delay: 0.1s">
+                <i class="fas fa-money-bill-wave text-2xl sm:text-3xl mb-2 sm:mb-4"></i>
+                <h3 id="revenue" class="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">Rp -</h3>
+                <p class="text-xs sm:text-sm opacity-80">Monthly Revenue</p>
+            </div>
+
+            <!-- Profit Margin -->
+            <div class="bg-gradient-to-br from-yellow-600 to-orange-600 rounded-xl p-4 sm:p-6 shadow-xl slide-in" style="animation-delay: 0.2s">
+                <i class="fas fa-chart-line text-2xl sm:text-3xl mb-2 sm:mb-4"></i>
+                <h3 id="margin" class="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">-%</h3>
+                <p class="text-xs sm:text-sm opacity-80">Profit Margin</p>
+            </div>
+
+            <!-- Quality Pass Rate -->
+            <div class="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-4 sm:p-6 shadow-xl slide-in" style="animation-delay: 0.3s">
+                <i class="fas fa-check-circle text-2xl sm:text-3xl mb-2 sm:mb-4"></i>
+                <h3 id="quality" class="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">-%</h3>
+                <p class="text-xs sm:text-sm opacity-80">Quality Pass Rate</p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Production Trend Chart -->
+            <div class="bg-black bg-opacity-50 backdrop-blur-lg rounded-xl p-4 sm:p-6 border border-purple-500 slide-in" style="animation-delay: 0.4s">
+                <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-chart-line text-purple-400 mr-2"></i>
+                    Production Trend (Last 6 Weeks)
+                </h3>
+                <div class="relative" style="height: 250px;">
+                    <canvas id="productionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Material Stock Chart -->
+            <div class="bg-black bg-opacity-50 backdrop-blur-lg rounded-xl p-4 sm:p-6 border border-purple-500 slide-in" style="animation-delay: 0.5s">
+                <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-boxes text-green-400 mr-2"></i>
+                    Material Stock Status
+                </h3>
+                <div class="relative" style="height: 250px;">
+                    <canvas id="materialChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Projects Table -->
+        <div class="bg-black bg-opacity-50 backdrop-blur-lg rounded-xl p-4 sm:p-6 border border-purple-500 slide-in" style="animation-delay: 0.6s">
+            <h3 class="text-lg sm:text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-list text-yellow-400 mr-2"></i>
+                Recent Projects
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-purple-500">
+                            <th class="text-left py-3 px-2 sm:px-4">Project #</th>
+                            <th class="text-left py-3 px-2 sm:px-4 hidden sm:table-cell">Start Date</th>
+                            <th class="text-left py-3 px-2 sm:px-4">Output</th>
+                            <th class="text-left py-3 px-2 sm:px-4">Status</th>
+                            <th class="text-left py-3 px-2 sm:px-4 hidden md:table-cell">Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTable">
+                        <tr>
+                            <td colspan="5" class="text-center py-8 text-gray-400">
+                                <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                                <p>Loading projects...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- GANI Chat Modal -->
+    <div id="ganiModal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
+        <div class="bg-gradient-to-br from-gray-900 to-purple-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border-2 border-purple-500 shadow-2xl slide-in">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-4 sm:p-6 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-robot text-2xl sm:text-3xl"></i>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold">GANI Chat</h2>
+                        <p class="text-xs sm:text-sm opacity-90">Your AI Workshop Assistant</p>
+                    </div>
+                </div>
+                <button onclick="closeGANIChat()" class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg px-3 py-2 text-sm transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Chat Container -->
+            <div id="chatMessages" class="chat-container p-4 sm:p-6 space-y-4 bg-gray-900 bg-opacity-50">
+                <!-- Welcome message -->
+                <div class="chat-message flex items-start space-x-3">
+                    <div class="bg-purple-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-robot text-sm"></i>
+                    </div>
+                    <div class="bg-purple-900 bg-opacity-50 rounded-xl p-3 max-w-[80%]">
+                        <p class="text-sm">👋 Hi Boss! Saya GANI, AI assistant untuk workshop Bapak. Ada yang bisa saya bantu hari ini?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Questions -->
+            <div class="p-4 bg-gray-900 bg-opacity-50 border-t border-purple-500">
+                <p class="text-xs text-gray-400 mb-2">Quick Questions:</p>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="askGANI('Bagaimana status workshop hari ini?')" class="bg-purple-700 hover:bg-purple-600 px-3 py-2 rounded-lg text-xs transition">
+                        Workshop Status
+                    </button>
+                    <button onclick="askGANI('Material apa yang perlu di-restock?')" class="bg-purple-700 hover:bg-purple-600 px-3 py-2 rounded-lg text-xs transition">
+                        Materials
+                    </button>
+                    <button onclick="askGANI('Berapa total profit minggu ini?')" class="bg-purple-700 hover:bg-purple-600 px-3 py-2 rounded-lg text-xs transition">
+                        Projects
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="p-4 bg-black bg-opacity-50 border-t border-purple-500">
+                <div class="flex space-x-2">
+                    <input 
+                        type="text" 
+                        id="chatInput" 
+                        placeholder="Tanya GANI sesuatu..." 
+                        class="flex-1 bg-gray-900 bg-opacity-50 border border-purple-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600"
+                        onkeypress="if(event.key === 'Enter') sendMessage()"
+                    >
+                    <button onclick="sendMessage()" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-6 py-3 rounded-lg transition font-bold">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let productionChart, materialChart;
+        let chatHistory = [];
+
+        // Initialize dashboard
+        async function initDashboard() {
+            await loadDashboardData();
+            await loadProjects();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(async () => {
+                await loadDashboardData();
+                await loadProjects();
+                document.getElementById('lastUpdate').textContent = dayjs().format('HH:mm:ss');
+            }, 30000);
+        }
+
+        // Load dashboard statistics
+        async function loadDashboardData() {
+            try {
+                const response = await axios.get('/api/workshop/dashboard');
+                if (response.data.success) {
+                    const stats = response.data.stats;
+                    
+                    // Update cards
+                    document.getElementById('activeCount').textContent = stats.active_projects;
+                    document.getElementById('activeBadge').textContent = stats.active_projects > 0 ? 'ACTIVE' : 'IDLE';
+                    document.getElementById('revenue').textContent = `Rp ${(stats.monthly_revenue / 1000000).toFixed(1)}M`;
+                    document.getElementById('margin').textContent = `${stats.profit_margin.toFixed(1)}%`;
+                    document.getElementById('quality').textContent = `${stats.quality_pass_rate.toFixed(1)}%`;
+                    
+                    document.getElementById('lastUpdate').textContent = dayjs().format('HH:mm:ss');
+                }
+
+                // Load chart data
+                await loadCharts();
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+            }
+        }
+
+        // Load charts
+        async function loadCharts() {
+            try {
+                // Production Trend Chart
+                const projectsRes = await axios.get('/api/workshop/projects?status=completed');
+                const projects = projectsRes.data.projects.slice(0, 6).reverse();
+                
+                const productionLabels = projects.map(p => `Week ${p.id}`);
+                const productionData = projects.map(p => p.actual_output || p.target_output);
+                
+                if (productionChart) productionChart.destroy();
+                
+                const ctxProd = document.getElementById('productionChart').getContext('2d');
+                productionChart = new Chart(ctxProd, {
+                    type: 'line',
+                    data: {
+                        labels: productionLabels,
+                        datasets: [{
+                            label: 'Chairs Produced',
+                            data: productionData,
+                            borderColor: 'rgb(168, 85, 247)',
+                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgb(168, 85, 247)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { color: '#fff' }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        }
+                    }
+                });
+
+                // Material Stock Chart
+                const materialsRes = await axios.get('/api/workshop/materials');
+                const materials = materialsRes.data.materials.slice(0, 7);
+                
+                const materialLabels = materials.map(m => m.material_name.split(' ')[0]);
+                const currentStock = materials.map(m => m.current_stock);
+                const minStock = materials.map(m => m.min_stock);
+                
+                if (materialChart) materialChart.destroy();
+                
+                const ctxMat = document.getElementById('materialChart').getContext('2d');
+                materialChart = new Chart(ctxMat, {
+                    type: 'bar',
+                    data: {
+                        labels: materialLabels,
+                        datasets: [
+                            {
+                                label: 'Current Stock',
+                                data: currentStock,
+                                backgroundColor: materials.map(m => 
+                                    m.current_stock <= m.min_stock ? 'rgb(239, 68, 68)' : 
+                                    m.current_stock <= m.min_stock * 1.5 ? 'rgb(234, 179, 8)' : 
+                                    'rgb(34, 197, 94)'
+                                ),
+                                borderRadius: 6
+                            },
+                            {
+                                label: 'Min Stock',
+                                data: minStock,
+                                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { color: '#fff' }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#fff', font: { size: 10 } },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Failed to load charts:', error);
+            }
+        }
+
+        // Load recent projects
+        async function loadProjects() {
+            try {
+                const response = await axios.get('/api/workshop/projects');
+                const projects = response.data.projects.slice(0, 5);
+                
+                const tbody = document.getElementById('projectsTable');
+                tbody.innerHTML = '';
+                
+                if (projects.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">No projects yet</td></tr>';
+                    return;
+                }
+                
+                projects.forEach(project => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-700 hover:bg-purple-900 hover:bg-opacity-20 transition';
+                    
+                    const statusColors = {
+                        'planning': 'bg-gray-600',
+                        'in_production': 'bg-blue-600',
+                        'quality_check': 'bg-yellow-600',
+                        'completed': 'bg-green-600'
+                    };
+                    
+                    const profit = (project.estimated_revenue || 0) - (project.estimated_cost || 0);
+                    
+                    row.innerHTML = `
+                        <td class="py-3 px-2 sm:px-4 font-mono text-xs sm:text-sm">${project.project_number}</td>
+                        <td class="py-3 px-2 sm:px-4 text-xs sm:text-sm hidden sm:table-cell">${dayjs(project.start_date).format('DD MMM YY')}</td>
+                        <td class="py-3 px-2 sm:px-4 text-xs sm:text-sm">${project.actual_output || 0}/${project.target_output}</td>
+                        <td class="py-3 px-2 sm:px-4">
+                            <span class="text-xs px-2 py-1 rounded-full ${statusColors[project.status] || 'bg-gray-600'}">
+                                ${project.status.replace('_', ' ').toUpperCase()}
+                            </span>
+                        </td>
+                        <td class="py-3 px-2 sm:px-4 text-xs sm:text-sm font-bold text-green-400 hidden md:table-cell">
+                            Rp ${(profit / 1000).toFixed(0)}K
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Failed to load projects:', error);
+            }
+        }
+
+        // Refresh dashboard
+        async function refreshDashboard() {
+            await loadDashboardData();
+            await loadProjects();
+        }
+
+        // GANI Chat Functions
+        function openGANIChat() {
+            document.getElementById('ganiModal').classList.remove('hidden');
+        }
+
+        function closeGANIChat() {
+            document.getElementById('ganiModal').classList.add('hidden');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const question = input.value.trim();
+            
+            if (!question) return;
+            
+            // Add user message
+            addChatMessage(question, 'user');
+            input.value = '';
+            
+            // Ask GANI
+            await askGANI(question);
+        }
+
+        async function askGANI(question) {
+            const chatContainer = document.getElementById('chatMessages');
+            
+            // Add user message if from quick button
+            if (event && event.target.tagName === 'BUTTON') {
+                addChatMessage(question, 'user');
+            }
+            
+            // Add loading message
+            const loadingId = 'loading-' + Date.now();
+            addChatMessage('Thinking...', 'gani', loadingId);
+            
+            try {
+                const response = await axios.post('/api/gani/consult', {
+                    question: question,
+                    user_id: 'bapak-001'
+                });
+                
+                // Remove loading message
+                document.getElementById(loadingId)?.remove();
+                
+                if (response.data.success) {
+                    addChatMessage(response.data.gani_response, 'gani');
+                } else {
+                    addChatMessage('Sorry Boss, ada error: ' + response.data.error, 'gani');
+                }
+                
+            } catch (error) {
+                document.getElementById(loadingId)?.remove();
+                addChatMessage('Sorry Boss, gagal connect ke GANI. Coba lagi?', 'gani');
+                console.error('GANI error:', error);
+            }
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addChatMessage(message, sender, id = null) {
+            const chatContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message flex items-start space-x-3';
+            if (id) messageDiv.id = id;
+            
+            if (sender === 'user') {
+                messageDiv.className += ' flex-row-reverse space-x-reverse';
+                messageDiv.innerHTML = `
+                    <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user text-sm"></i>
+                    </div>
+                    <div class="bg-blue-900 bg-opacity-50 rounded-xl p-3 max-w-[80%]">
+                        <p class="text-sm">${message}</p>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="bg-purple-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-robot text-sm"></i>
+                    </div>
+                    <div class="bg-purple-900 bg-opacity-50 rounded-xl p-3 max-w-[80%]">
+                        <p class="text-sm">${message}</p>
+                    </div>
+                `;
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboard();
+        });
+    </script>
+
+</body>
+</html>

@@ -719,12 +719,12 @@ app.get('/', async (c) => {
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <a href="/v2.html" class="bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl p-6 text-center transition border-2 border-yellow-400">
+                <a href="/dashboard-enhanced.html" class="bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl p-6 text-center transition border-2 border-yellow-400">
                     <div class="flex items-center justify-center mb-2">
                         <i class="fas fa-chart-line text-4xl"></i>
                         <span class="ml-2 bg-yellow-400 text-purple-900 text-xs font-bold px-2 py-1 rounded">NEW!</span>
                     </div>
-                    <h2 class="text-xl font-bold">Enhanced Dashboard</h2>
+                    <h2 class="text-xl font-bold">Enhanced Dashboard v2.0</h2>
                     <p class="text-sm opacity-80 mt-2">📊 Real-time charts • 🤖 GANI Chat • 📱 Mobile-ready</p>
                 </a>
                 
