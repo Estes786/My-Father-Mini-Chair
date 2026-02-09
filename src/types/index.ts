@@ -4,6 +4,7 @@
 
 export interface CloudflareBindings {
   DB: D1Database;
+  AI: any; // Cloudflare Workers AI
 }
 
 // =====================================================

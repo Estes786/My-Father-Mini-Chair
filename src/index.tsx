@@ -485,6 +485,171 @@ app.post('/api/home/tasks', async (c) => {
 })
 
 // =====================================================
+// GANI AI CONSULTATION (Workers AI - Llama 3)
+// =====================================================
+
+// GANI AI Consultation for Workshop Management
+app.post('/api/gani/consult', async (c) => {
+  try {
+    const { user_id = 'bapak-001', question, context_type = 'workshop' } = await c.req.json()
+    
+    if (!question) {
+      return c.json({ success: false, error: 'Question is required' }, 400)
+    }
+    
+    // Get workshop context
+    const materials = await c.env.DB.prepare(`
+      SELECT material_name, current_stock, min_stock, 
+             CASE 
+               WHEN current_stock <= min_stock THEN 'critical'
+               WHEN current_stock <= (min_stock * 1.5) THEN 'warning'
+               ELSE 'ok'
+             END as stock_status
+      FROM workshop_materials
+    `).all()
+    
+    const activeProjects = await c.env.DB.prepare(`
+      SELECT project_number, status, target_output, actual_output
+      FROM production_projects 
+      WHERE status IN ('in_production', 'quality_check')
+    `).all()
+    
+    const recentQuality = await c.env.DB.prepare(`
+      SELECT (SUM(passed) * 100.0 / COUNT(*)) as pass_rate
+      FROM quality_inspections
+      WHERE inspected_at >= date('now', '-7 days')
+    `).first()
+    
+    // Build context for GANI
+    const workshopContext = {
+      materials: materials.results,
+      active_projects: activeProjects.results,
+      quality_pass_rate: recentQuality?.pass_rate || 95
+    }
+    
+    // GANI system prompt
+    const systemPrompt = `You are GANI (Generative AI Navigator Interface), the AI assistant for Stark Dynasty Workshop Production Management. Your role is to help Bapak (The Master Craftsman) manage his mini chair manufacturing business.
+
+Context:
+- Business: Manufacturing 90 mini chairs every 2 weeks
+- Profit Margin: 57.2% (excellent!)
+- Quality Target: 95%+ pass rate
+- Cost: Rp 886,192 COGS, Revenue: Rp 2,070,000 per project
+
+Current Workshop Status:
+${JSON.stringify(workshopContext, null, 2)}
+
+Your personality:
+- Respectful to Bapak ("Boss")
+- Data-driven and solution-oriented
+- Proactive in alerting issues
+- Proud of craftsmanship
+- Mix Indonesian & English (casual professional)
+
+Answer Bapak's question with actionable recommendations. Be specific with numbers and suggest concrete actions.`
+
+    // Call Cloudflare Workers AI (Llama 3)
+    const aiResponse = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: question }
+      ],
+      max_tokens: 512
+    })
+    
+    return c.json({
+      success: true,
+      gani_response: aiResponse.response,
+      context_used: workshopContext,
+      timestamp: new Date().toISOString()
+    })
+    
+  } catch (error: any) {
+    return c.json({ 
+      success: false, 
+      error: error.message,
+      hint: 'Make sure Workers AI (Llama 3) is enabled in your Cloudflare account'
+    }, 500)
+  }
+})
+
+// Generate GANI Auto-Recommendations
+app.get('/api/gani/recommendations', async (c) => {
+  try {
+    // Check for critical issues
+    const recommendations = []
+    
+    // 1. Check material stock levels
+    const lowStockMaterials = await c.env.DB.prepare(`
+      SELECT material_name, current_stock, min_stock, reorder_quantity, 
+             supplier_name, lead_time_days
+      FROM workshop_materials
+      WHERE current_stock <= min_stock
+    `).all()
+    
+    for (const material of lowStockMaterials.results as any[]) {
+      recommendations.push({
+        priority: 'critical',
+        type: 'material_reorder',
+        title: `🚨 Stock ${material.material_name} Kritis!`,
+        message: `Boss, stock ${material.material_name} tinggal ${material.current_stock}! Di bawah minimum ${material.min_stock}.\\n\\nRecommend order: ${material.reorder_quantity} unit dari ${material.supplier_name}\\nLead time: ${material.lead_time_days} hari\\n\\nJangan sampai delay production!`,
+        action: 'restock_material',
+        data: { material_id: material.id }
+      })
+    }
+    
+    // 2. Check project deadlines
+    const upcomingDeadlines = await c.env.DB.prepare(`
+      SELECT project_number, target_completion_date, actual_output, target_output
+      FROM production_projects
+      WHERE status = 'in_production' 
+        AND target_completion_date <= date('now', '+3 days')
+    `).all()
+    
+    for (const project of upcomingDeadlines.results as any[]) {
+      const progress = (project.actual_output / project.target_output) * 100
+      recommendations.push({
+        priority: progress < 70 ? 'high' : 'medium',
+        type: 'project_deadline',
+        title: `⏰ Project ${project.project_number} Deadline Soon!`,
+        message: `Boss, ${project.project_number} deadline dalam 3 hari!\\nProgress: ${project.actual_output}/${project.target_output} chairs (${progress.toFixed(1)}%)\\n\\n${progress < 70 ? 'Perlu percepat production!' : 'On track, maintain pace!'}`,
+        action: 'view_project',
+        data: { project_number: project.project_number }
+      })
+    }
+    
+    // 3. Check quality rate
+    const qualityStats = await c.env.DB.prepare(`
+      SELECT (SUM(passed) * 100.0 / COUNT(*)) as pass_rate,
+             COUNT(*) as total_inspected
+      FROM quality_inspections
+      WHERE inspected_at >= date('now', '-7 days')
+    `).first()
+    
+    if (qualityStats && qualityStats.pass_rate < 95 && qualityStats.total_inspected > 10) {
+      recommendations.push({
+        priority: 'high',
+        type: 'quality_issue',
+        title: '⚠️ Quality Pass Rate Below Target',
+        message: `Boss, quality pass rate last 7 days: ${qualityStats.pass_rate.toFixed(1)}% (target: 95%+)\\n\\nPerlu investigate root cause:\\n- Check material quality\\n- Review production process\\n- Retrain if needed`,
+        action: 'view_quality_report',
+        data: { pass_rate: qualityStats.pass_rate }
+      })
+    }
+    
+    return c.json({
+      success: true,
+      recommendations,
+      count: recommendations.length,
+      timestamp: new Date().toISOString()
+    })
+    
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// =====================================================
 // GANI ALERTS ROUTES
 // =====================================================
 

@@ -13,5 +13,9 @@
       "database_name": "workshop-db",
       "database_id": "eec04d92-8368-4c98-9398-f3642d4b1eb1"
     }
-  ]
+  ],
+  // Workers AI for GANI Intelligence
+  "ai": {
+    "binding": "AI"
+  }
 }
