@@ -719,7 +719,7 @@ app.get('/', async (c) => {
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <a href="/dashboard-enhanced.html" class="bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl p-6 text-center transition border-2 border-yellow-400">
+                <a href="/v2.html" class="bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl p-6 text-center transition border-2 border-yellow-400">
                     <div class="flex items-center justify-center mb-2">
                         <i class="fas fa-chart-line text-4xl"></i>
                         <span class="ml-2 bg-yellow-400 text-purple-900 text-xs font-bold px-2 py-1 rounded">NEW!</span>
@@ -802,12 +802,17 @@ app.get('/', async (c) => {
   `)
 })
 
+// Enhanced Dashboard v2.0
+app.get('/v2', (c) => {
+  return c.redirect('/dashboard-enhanced.html')
+})
+
 // Health check
 app.get('/health', (c) => {
   return c.json({ 
     status: 'healthy',
     service: 'stark-dynasty-workshop',
-    version: '1.0.0',
+    version: '2.0.0',
     timestamp: new Date().toISOString()
   })
 })
