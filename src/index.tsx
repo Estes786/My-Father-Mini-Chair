@@ -8,8 +8,11 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 // Enable CORS for all API routes
 app.use('/api/*', cors())
 
-// Serve static files from public directory
-app.use('/static/*', serveStatic({ root: './public' }))
+// Serve static files from public directory  
+app.use('/*', serveStatic({ root: './' }))
+
+// Enhanced Dashboard v2.0 (NEW!)
+app.get('/dashboard-enhanced.html', serveStatic({ path: './dashboard-enhanced.html' }))
 
 // Serve dashboard route  
 app.get('/dashboard', (c) => {
